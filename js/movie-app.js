@@ -1,5 +1,4 @@
 const baseurl = 'https://copper-cypress-bakery.glitch.me/movies';
-
 /** DATABASE SEED-EMPTY FUNCTIONS **/
 // SEED DATA TO GET FROM OMDB FOR DATABASE
 const seedList = [
@@ -528,20 +527,43 @@ const movieSearch = (searchInput)=>{
             console.warn("error", error);
         });
 }
-
+$( "p" ).removeClass( "myClass noClass" ).addClass( "yourClass" );
 // SWAP SEARCH INPUT BASED ON RADIO BUTTON
 $("#radioRating").click(function () {
     if($("#ratingSearchInput").hasClass("d-none")){
-        $("#ratingSearchInput, #searchField").toggleClass("d-none");
+        $("#ratingSearchInput").removeClass("d-none");
+        if(!$("#searchField").hasClass("d-none")){
+            $("#searchField").addClass("d-none");
+        }
+        if(!$("#genreSearchInput").hasClass("d-none")){
+            $("#genreSearchInput").addClass("d-none");
+        }
     }
-    
 })
 // SWAP SEARCH INPUT BASED ON RADIO BUTTON
-$("#radioTitle, #radioGenre").click(function () {
+$("#radioTitle").click(function () {
     if($("#searchField").hasClass("d-none")){
-        $("#ratingSearchInput, #searchField").toggleClass("d-none");
+        $("#searchField").removeClass("d-none");
+        if(!$("#ratingSearchInput").hasClass("d-none")){
+            $("#ratingSearchInput").addClass("d-none");
+        }
+        if(!$("#genreSearchInput").hasClass("d-none")){
+            $("#genreSearchInput").addClass("d-none");
+        }
     }
+})
 
+// SWAP SEARCH INPUT BASED ON RADIO BUTTON
+$("#radioGenre").click(function () {
+    if($("#genreSearchInput").hasClass("d-none")){
+        $("#genreSearchInput").removeClass("d-none");
+        if(!$("#ratingSearchInput").hasClass("d-none")){
+            $("#ratingSearchInput").addClass("d-none");
+        }
+        if(!$("#searchField").hasClass("d-none")){
+            $("#searchField").addClass("d-none");
+        };
+    }
 })
 /** END SEARCH FEATURE **/
 
