@@ -3,44 +3,78 @@ $(document).ready(function() {
     const baseurl = 'https://copper-cypress-bakery.glitch.me/movies';
     let localMovies = [];
     /** DATABASE SEED-EMPTY FUNCTIONS **/
-    // SEED DATA TO GET FROM OMDB FOR DATABASE
+        // SEED DATA TO GET FROM OMDB FOR DATABASE
     const seedList = [
-        "CITIZEN KANE ",
-        "CASABLANCA",
-        "THE GODFATHER",
-        "GONE WITH THE WIND",
-        "WIZARD OF OZ",
-        "THE GRADUATE",
-        "PSYCHO",
-        "nightmare on elm street",
-        "Friday the 13th",
-        "kill bill",
-        "king kong",
-        "taxi driver",
-        "the conjuring",
-        "due date",
-        "the hangover",
-        "jaws",
-        "clockwork orange",
-        "hot tub time machine",
-        "back to the future",
-        "the sandlot",
-        "pulp fiction",
-        "forrest gump",
-        "american pie",
-        "fight club",
-        "donnie darko",
-        "mr. deeds",
-        "hot chick",
-        "ip man",
-        "the girl next door",
-        "goodfellas",
-        "rocky",
-        "fanasia",
-        "network",
-        "apocalypse now"
+            "CITIZEN KANE ",
+            "CASABLANCA",
+            "THE GODFATHER",
+            "GONE WITH THE WIND",
+            "WIZARD OF OZ",
+            "THE GRADUATE",
+            "PSYCHO",
+            "nightmare on elm street",
+            "Friday the 13th",
+            "kill bill",
+            "king kong",
+            "taxi driver",
+            "the conjuring",
+            "due date",
+            "the hangover",
+            "jaws",
+            "clockwork orange",
+            "hot tub time machine",
+            "back to the future",
+            "the sandlot",
+            "pulp fiction",
+            "forrest gump",
+            "american pie",
+            "fight club",
+            "donnie darko",
+            "mr. deeds",
+            "hot chick",
+            "ip man",
+            "the girl next door",
+            "goodfellas",
+            "rocky",
+            "fanasia",
+            "network",
+            "apocalypse now"
+        ];
+
+    const genres = [
+        "Action",
+        "Adventure",
+        "Comedy",
+        "Crime",
+        "Drama",
+        "Family",
+        "Fantasy",
+        "Historical",
+        "Historical fiction",
+        "Horror",
+        "Magical realism",
+        "Mystery",
+        "Paranoid fiction",
+        "Philosophical",
+        "Political",
+        "Romance",
+        "Saga",
+        "Satire",
+        "Science fiction",
+        "Social",
+        "Speculative",
+        "Thriller",
+        "Urban",
+        "Western",
+        "Animation",
+        "Video game",
+        "Music"
     ];
-    
+    for(let genre of genres) {
+        console.log(genre);
+        $("#genreSearchInput").append(`<option value="${genre}">${genre}</option>`);
+    }
+    $("#genreSearchInput").addClass("d-none");
     // MAKE REQUEST FROM OMDB API
     const getOmdb =(movie) => {
         const url =`http://www.omdbapi.com/?t=${movie}&apikey=${OMDbkey}&`
@@ -51,7 +85,7 @@ $(document).ready(function() {
             })
             .catch(error => console.log(error));
     }
-    
+
     // SEED DATA WHEN NEEDED
     const seedData = ()=>{
         for(let movie of seedList){
@@ -73,9 +107,9 @@ $(document).ready(function() {
                 }
                 createMovie(newMovie);
             });
-        } 
+        }
     }
-    
+
     // DELETES ALL THE MOVIES FROM OUR DATABASE
     const deleteAll = () =>{
         fetch(baseurl)
@@ -97,31 +131,31 @@ $(document).ready(function() {
             });
     }
     /** END DATABASE SEED-EMPTY COMMANDS **/
-    
+
     /** GET MOVIES FROM DATABASE REQUESTS**/
-    // SERVER REQUEST TO GET ALL MOVIES FROM DATABASE
+        // SERVER REQUEST TO GET ALL MOVIES FROM DATABASE
     const getDatabase =() => {
-        $("#database-list").html(loader);
-        fetch(baseurl)
-            .then((response)=> {
-                if (response.ok) {
-                    return response.json();
-                }
-                return Promise.reject(response);
-            })
-            .then( (data)=> {
-                console.log("success");
-                localMovies = data;
-                $("#database-list").html("")
-                for(let movie of localMovies){
-                    createMovieCard(movie);
-                }
-            })
-            .catch( (error) =>{
-                console.warn("error", error);
-            });
-    }
-    
+            $("#database-list").html(loader);
+            fetch(baseurl)
+                .then((response)=> {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    return Promise.reject(response);
+                })
+                .then( (data)=> {
+                    console.log("success");
+                    localMovies = data;
+                    $("#database-list").html("")
+                    for(let movie of localMovies){
+                        createMovieCard(movie);
+                    }
+                })
+                .catch( (error) =>{
+                    console.warn("error", error);
+                });
+        }
+
     // SERVER REQUEST TO GET SPECIFIC MOVIE FROM DATABASE
     const getMovie = (id) => {
         return fetch(baseurl)
@@ -145,11 +179,11 @@ $(document).ready(function() {
             });
     }
     /** END GET MOVIES REQUEST **/
-    
+
     /** HELPER FUNCTIONS **/
-    // DYNAMIC MOVIE CARD CREATED FROM MOVIE DATA
+        // DYNAMIC MOVIE CARD CREATED FROM MOVIE DATA
     const createMovieCard = (movie) =>{
-        $('#database-list').append(`
+            $('#database-list').append(`
             <div class="card menu-view shadow-lg ">
                 <img class="card-img-top" src="${movie.poster}" alt="Card image cap">
                 <div class="card-body">
@@ -180,15 +214,15 @@ $(document).ready(function() {
                             <hr>
                             <div class="list-group-item"><h5>Language:</h5><span class="sub-info"> ${movie.language}</span></div>                
                             <div id="${movie.id}" class="list-group-item">
-                                <button class="badge badge-pill badge-dark editbtn">Edit</button>
-                                <button class="badge badge-pill badge-dark deletebtn">Delete</button>
+                                <button class="badge badge-pill badge-info editbtn float-right mx-1">Edit</button>
+                                <button class="badge badge-pill badge-danger deletebtn float-right mx-1">Delete</button>
                             </div>
                         </div>
                     </div>   
                 </div> 
             </div>
         `);
-    }
+        }
     // CREATES A MOVIE OBJECT BASED ON FORM INPUTS
     const setMovieObj = ()=>{
         return {
@@ -206,7 +240,7 @@ $(document).ready(function() {
             actors: $("#actors").val()
         }
     }
-    
+
     // LOADING SCREEN SPINNER
     const loader = `
         <div class="loader">
@@ -217,7 +251,7 @@ $(document).ready(function() {
             </div>
         </div>
     `
-    
+
     $("#addMovieBtn").hover(
         function () {
             $(this).popover('toggle');
@@ -226,41 +260,41 @@ $(document).ready(function() {
             $(this).popover('toggle');
         }
     )
-    
+
     /** END HELPER FUNCTIONS**/
-    
+
     /** CRUD - CREATE, READ, UPDATE, DELETE **/
-    // CRUD CREATE A MOVIE ON DATABASE
+        // CRUD CREATE A MOVIE ON DATABASE
     const createMovie = (movie)=>{
-        const options = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(movie),
-        };
-        fetch(baseurl, options)
-            .then((response)=> {
-                if (response.ok) {
-                    return response.json();
-                }
-                return Promise.reject(response);
-            })
-            .then( ()=> {
-                console.log("success");
-                getDatabase();
-            })
-            .catch( (error) =>{
-                console.warn("error", error);
-            });
-    }
-    
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(movie),
+            };
+            fetch(baseurl, options)
+                .then((response)=> {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    return Promise.reject(response);
+                })
+                .then( ()=> {
+                    console.log("success");
+                    getDatabase();
+                })
+                .catch( (error) =>{
+                    console.warn("error", error);
+                });
+        }
+
     // CRUD DELETE MOVIE FROM DATABASE
     const deleteMovie = (id)=>{
         let url = `${baseurl}/${id}`;
         fetch(url,{method: "DELETE"}).then(()=> getDatabase());
     }
-    
+
     // CRUD UPDATE MOVIE ON DATABASE
     const updateMovie =(id) => {
         const url = `${baseurl}/${id}`;
@@ -289,23 +323,23 @@ $(document).ready(function() {
             });
     }
     /** END CRUD **/
-    
-    
+
+
     /** FORM SPECIFIC VARS AND FUNCTIONS **/
-    // FORM: RENDER THE MOVIE FORM FROM CALLBACK
+        // FORM: RENDER THE MOVIE FORM FROM CALLBACK
     const loadCreateForm = ()=>{
-        return fetch("_form.html")
-            .then((response)=> {
-                if (response.ok) {
-                    return response.text();
-                }
-                return Promise.reject(response);
-            })
-            .catch( (error) =>{
-                console.warn("error", error);
-            });
-    }
-    
+            return fetch("_form.html")
+                .then((response)=> {
+                    if (response.ok) {
+                        return response.text();
+                    }
+                    return Promise.reject(response);
+                })
+                .catch( (error) =>{
+                    console.warn("error", error);
+                });
+        }
+
     // FORM: CREATES THE SELECT VALUES FOR YEARS
     const yearsSelect = ()=>{
         let current = (new Date()).getFullYear();
@@ -313,43 +347,14 @@ $(document).ready(function() {
             $("#year").append(`<option value="${current}">${current}</option>`)
         }
     }
-    
+
     // FORM: CREATES THE SELECT VALUES FOR GENRE
     const genreSelect = ()=>{
-        const genres = [
-            "Action",
-            "Adventure",
-            "Comedy",
-            "Crime",
-            "Drama",
-            "Family",
-            "Fantasy",
-            "Historical",
-            "Historical fiction",
-            "Horror",
-            "Magical realism",
-            "Mystery",
-            "Paranoid fiction",
-            "Philosophical",
-            "Political",
-            "Romance",
-            "Saga",
-            "Satire",
-            "Science fiction",
-            "Social",
-            "Speculative",
-            "Thriller",
-            "Urban",
-            "Western",
-            "Animation",
-            "Video game",
-            "Music"
-        ];
         for(let genre of genres) {
-            $("#genre").append(`<option value="${genre}">${genre}</option>`)
+            $("#genre").append(`<option value="${genre}">${genre}</option>`);
         }
     }
-    
+
     // FORM: CREATES THE SELECT VALUES FOR LANGUAGES
     const languageSelect = ()=>{
         const langs = [
@@ -371,7 +376,7 @@ $(document).ready(function() {
     $(document).on("change","#rating",function () {
         $("#currentRating").html($("#rating").val());
     })
-    
+
     // FORM: SET THE INPUT SELECT VALUES FOR THE FORM
     const setSelectValues = ()=>{
         loadCreateForm().then( html=>{
@@ -398,8 +403,8 @@ $(document).ready(function() {
         $("#actors").val(movie.actors);
     }
     /** END FORM **/
-    
-    
+
+
     /** ONCLICK EVENTS **/
     // NEW MOVIE BUTTON ON CLICK DISPLAY THE CREATE MOVIE FORM MODAL
     $("#addMovieBtn").click(function (){
@@ -407,10 +412,10 @@ $(document).ready(function() {
         $('#formModalLongTitle').html("Add Movie");
         $("#formModal").modal("toggle");
     })
-    
+
     // GET ENTIRE CARD ON CLICK;
     // const deleteTitle = $(this).parent().siblings();
-    
+
     // DELETE MOVIE BUTTON ON CLICK DISPLAY CONFIRM DELETE
     $(document).on('click','.deletebtn',function(){
         $("#expandedModal").modal("toggle");
@@ -425,7 +430,7 @@ $(document).ready(function() {
             $("#deleteMovieModal").modal("toggle");
         })
     });
-    
+
     // EDIT MOVIE BUTTON ON CLICK DISPLAY THE UPDATE MOVIE FORM
     $(document).on('click','.editbtn',function() {
         $("#expandedModal").modal("toggle");
@@ -441,7 +446,7 @@ $(document).ready(function() {
             $("#formModal").modal("toggle");
         },200);
     });
-    
+
     //EXPANDS MODAL INFORMATION
     $(document).on('click', '.menu-view', function () {
         let info = $(this).html();
@@ -452,10 +457,10 @@ $(document).ready(function() {
         expandedContent.children(".card-body").children(".card-plot-expanded").toggleClass("d-none");
         $('#expandedModal').modal("toggle");
     })
-    
+
     /** END ONCLICK **/
-    
-    
+
+
     /** ONSUBMIT EVENTS **/
     // CREATE MOVIE FORM ON SUBMIT
     $(document).on("submit","#createMovie",function (event){
@@ -464,7 +469,7 @@ $(document).ready(function() {
         createMovie(movie);
         $("#formModal").modal("toggle");
     });
-    
+
     // EDIT MOVIE FORM ON SUBMIT
     $(document).on("submit","#updateMovie",function (event){
         event.preventDefault();
@@ -480,67 +485,104 @@ $(document).ready(function() {
     $("#searchField").on("keyup",function () {
         movieSearch($("#searchField").val());
     })
+    $("#ratingSearchInput").on("change",function () {
+        movieSearch($("#ratingSearchInput").val());
+    })
+    $("#genreSearchInput").on("change",function () {
+        movieSearch($("#genreSearchInput").val());
+    })
     /** END ONSUBMIT **/
-    
+
     /** SEARCH FEATURE SECTION **/
-    // SEARCH DATABASE
+        // SEARCH DATABASE
     const movieSearch = (searchInput)=>{
-        $("#database-list").html(loader);
-        let movies = localMovies.filter((movie)=> {
-            if ( $("#radioTitle").is(":checked")) {
-                if (movie.title.toLowerCase().includes(searchInput.toLowerCase())) {
-                    return movie;
-                }
-            }
-            if ( $("#radioGenre").is(":checked")){
-                for (let g of movie.genre){
-                    if (g.toLowerCase().includes(searchInput.toLowerCase())) {
+            $("#database-list").html(loader);
+            let movies = localMovies.filter((movie)=> {
+                if ( $("#radioTitle").is(":checked")) {
+                    if (movie.title.toLowerCase().includes(searchInput.toLowerCase())) {
                         return movie;
                     }
                 }
-            }
-            if ($("#radioRating").is(":checked")){
-                searchInput = $("#ratingSearchInput").val();
-                if((movie.rating/2) >= parseFloat(searchInput) ){
-                    return movie;
+                if ( $("#radioGenre").is(":checked")){
+                    searchInput = $("#genreSearchInput").val();
+                    for (let g of movie.genre){
+                        if (g.toLowerCase().includes(searchInput.toLowerCase())) {
+                            return movie;
+                        }
+                    }
                 }
+                if ($("#radioRating").is(":checked")){
+                    searchInput = $("#ratingSearchInput").val();
+                    if((movie.rating/2) >= parseFloat(searchInput) ){
+                        return movie;
+                    }
+                }
+            })
+            $("#database-list").html("")
+            if(movies.length>0){
+                for(let movie of movies){
+                    createMovieCard(movie);
+                }
+            }else{
+                $("#database-list").html("<h2 class='text-white'>No Movies Match Your Criteria</h2>")
             }
-        })
-        $("#database-list").html("")
-        for(let movie of movies){
-            createMovieCard(movie);
+            
         }
-    }
-    
+
     // SWAP SEARCH INPUT BASED ON RADIO BUTTON
     $("#radioRating").click(function () {
         if($("#ratingSearchInput").hasClass("d-none")){
-            $("#ratingSearchInput, #searchField").toggleClass("d-none");
+            $("#ratingSearchInput").removeClass("d-none");
+            if(!$("#searchField").hasClass("d-none")){
+                $("#searchField").addClass("d-none");
+            }
+            if(!$("#genreSearchInput").hasClass("d-none")){
+                $("#genreSearchInput").addClass("d-none");
+            }
         }
-        
     })
     // SWAP SEARCH INPUT BASED ON RADIO BUTTON
-    $("#radioTitle, #radioGenre").click(function () {
+    $("#radioTitle").click(function () {
         if($("#searchField").hasClass("d-none")){
-            $("#ratingSearchInput, #searchField").toggleClass("d-none");
+            $("#searchField").removeClass("d-none");
+            getDatabase();
+            if(!$("#ratingSearchInput").hasClass("d-none")){
+                $("#ratingSearchInput").addClass("d-none");
+            }
+            if(!$("#genreSearchInput").hasClass("d-none")){
+                $("#genreSearchInput").addClass("d-none");
+            }
         }
-    
+    })
+
+    // SWAP SEARCH INPUT BASED ON RADIO BUTTON
+    $("#radioGenre").click(function () {
+        if($("#genreSearchInput").hasClass("d-none")){
+            $("#genreSearchInput").removeClass("d-none");
+            if(!$("#ratingSearchInput").hasClass("d-none")){
+                $("#ratingSearchInput").addClass("d-none");
+            }
+            if(!$("#searchField").hasClass("d-none")){
+                $("#searchField").addClass("d-none");
+            };
+        }
     })
     /** END SEARCH FEATURE **/
-    
+
+
     /** SORT FILTER **/
-    
-    // TITLE A-Z
+
+        // TITLE A-Z
     const titleAsc = ()=>{
-        localMovies.sort((a,b) => (a.title > b.title) ? 1 : -1);
-        $("#database-list").empty();
-        for(let movie of localMovies){
-            createMovieCard(movie);
+            localMovies.sort((a,b) => (a.title > b.title) ? 1 : -1);
+            $("#database-list").empty();
+            for(let movie of localMovies){
+                createMovieCard(movie);
+            }
         }
-    }
-    
+
     $('#titleAZ').click(titleAsc);
-    
+
     const titleDesc = () =>{
         localMovies.sort((a,b) => (a.title < b.title) ? 1 : -1);
         $("#database-list").empty();
@@ -548,9 +590,9 @@ $(document).ready(function() {
             createMovieCard(movie);
         }
     }
-    
+
     $('#titleZA').click(titleDesc);
-    
+
     // YEAR ASC
     const yearAsc = ()=>{
         localMovies.sort((a,b) => (a.year > b.year) ? 1 : -1);
@@ -559,9 +601,9 @@ $(document).ready(function() {
             createMovieCard(movie);
         }
     }
-    
+
     $('#yearUp').click(yearAsc);
-    
+
     const yearDesc = ()=>{
         localMovies.sort((a,b) => (a.year < b.year) ? 1 : -1);
         $("#database-list").empty();
@@ -569,11 +611,8 @@ $(document).ready(function() {
             createMovieCard(movie);
         }
     }
-    
+
     $('#yearDown').click(yearDesc);
-    
+
     getDatabase();
-
-
-
 })
