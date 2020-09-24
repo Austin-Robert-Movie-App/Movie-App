@@ -15,19 +15,32 @@
 <body>
 <nav class="navbar navbar-dark bg-dark justify-content-between">
     <a class="navbar-brand">A&R Video</a>
-    <!-- Button trigger add movie modal -->
-    <button
-            id="addMovieBtn"
-            type="button"
-            class="btn text-warning"
-            data-container="body"
-            data-toggle="popover"
-            data-placement="left"
-            data-content="Click to Add New Movie"
-            data-trigger="hover"
-    >
-        <i class="fas fa-film fa-2x"></i>
-    </button>
+    <div>
+        <div class="btn-group">
+            <button type="button" class="btn text-white bg-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Sort By:
+            </button>
+            <div class="dropdown-menu">
+                <button id="titleAZ" class="dropdown-item" type="button">Title A-Z</button>
+                <button id="titleZA" class="dropdown-item" type="button">Title Z-A</button>
+                <button id="yearUp" class="dropdown-item" type="button">Year Asc.</button>
+                <button id="yearDown" class="dropdown-item" type="button">Year Desc.</button>
+            </div>
+        </div>
+        <!-- Button trigger add movie modal -->
+        <button
+                id="addMovieBtn"
+                type="button"
+                class="btn text-warning"
+                data-container="body"
+                data-toggle="popover"
+                data-placement="left"
+                data-content="Click to Add New Movie"
+                data-trigger="hover"
+        >
+            <i class="fas fa-film fa-2x"></i>
+        </button>
+    </div>
 </nav>
 <div class="w-100">
     <!-- search for movie form   -->
@@ -49,7 +62,6 @@
                         <option value="4">4+</option>
                         <option value="5">5</option>
                     </select>
-                    <select class="form-control d-none" id="genreSearchInput"> </select>
                     <div class="input-group-append">
                         <button id="search" type="submit" class="input-group-text btn text-primary shadow">
                             <i class="fa fa-search p-0"></i>
