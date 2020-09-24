@@ -41,6 +41,40 @@ $(document).ready(function() {
             "apocalypse now"
         ];
 
+    const genres = [
+        "Action",
+        "Adventure",
+        "Comedy",
+        "Crime",
+        "Drama",
+        "Family",
+        "Fantasy",
+        "Historical",
+        "Historical fiction",
+        "Horror",
+        "Magical realism",
+        "Mystery",
+        "Paranoid fiction",
+        "Philosophical",
+        "Political",
+        "Romance",
+        "Saga",
+        "Satire",
+        "Science fiction",
+        "Social",
+        "Speculative",
+        "Thriller",
+        "Urban",
+        "Western",
+        "Animation",
+        "Video game",
+        "Music"
+    ];
+    for(let genre of genres) {
+        console.log(genre);
+        $("#genreSearchInput").append(`<option value="${genre}">${genre}</option>`);
+    }
+    $("#genreSearchInput").addClass("d-none");
     // MAKE REQUEST FROM OMDB API
     const getOmdb =(movie) => {
         const url =`http://www.omdbapi.com/?t=${movie}&apikey=${OMDbkey}&`
@@ -180,8 +214,8 @@ $(document).ready(function() {
                             <hr>
                             <div class="list-group-item"><h5>Language:</h5><span class="sub-info"> ${movie.language}</span></div>                
                             <div id="${movie.id}" class="list-group-item">
-                                <button class="badge badge-pill badge-dark editbtn">Edit</button>
-                                <button class="badge badge-pill badge-dark deletebtn">Delete</button>
+                                <button class="badge badge-pill badge-info editbtn float-right mx-1">Edit</button>
+                                <button class="badge badge-pill badge-danger deletebtn float-right mx-1">Delete</button>
                             </div>
                         </div>
                     </div>   
@@ -316,37 +350,8 @@ $(document).ready(function() {
 
     // FORM: CREATES THE SELECT VALUES FOR GENRE
     const genreSelect = ()=>{
-        const genres = [
-            "Action",
-            "Adventure",
-            "Comedy",
-            "Crime",
-            "Drama",
-            "Family",
-            "Fantasy",
-            "Historical",
-            "Historical fiction",
-            "Horror",
-            "Magical realism",
-            "Mystery",
-            "Paranoid fiction",
-            "Philosophical",
-            "Political",
-            "Romance",
-            "Saga",
-            "Satire",
-            "Science fiction",
-            "Social",
-            "Speculative",
-            "Thriller",
-            "Urban",
-            "Western",
-            "Animation",
-            "Video game",
-            "Music"
-        ];
         for(let genre of genres) {
-            $("#genre").append(`<option value="${genre}">${genre}</option>`)
+            $("#genre").append(`<option value="${genre}">${genre}</option>`);
         }
     }
 
@@ -480,6 +485,12 @@ $(document).ready(function() {
     $("#searchField").on("keyup",function () {
         movieSearch($("#searchField").val());
     })
+    $("#ratingSearchInput").on("change",function () {
+        movieSearch($("#ratingSearchInput").val());
+    })
+    $("#genreSearchInput").on("change",function () {
+        movieSearch($("#genreSearchInput").val());
+    })
     /** END ONSUBMIT **/
 
     /** SEARCH FEATURE SECTION **/
@@ -493,6 +504,7 @@ $(document).ready(function() {
                     }
                 }
                 if ( $("#radioGenre").is(":checked")){
+                    searchInput = $("#genreSearchInput").val();
                     for (let g of movie.genre){
                         if (g.toLowerCase().includes(searchInput.toLowerCase())) {
                             return movie;
@@ -507,26 +519,56 @@ $(document).ready(function() {
                 }
             })
             $("#database-list").html("")
-            for(let movie of movies){
-                createMovieCard(movie);
+            if(movies.length>0){
+                for(let movie of movies){
+                    createMovieCard(movie);
+                }
+            }else{
+                $("#database-list").html("<h2 class='text-white'>No Movies Match Your Criteria</h2>")
             }
+            
         }
 
     // SWAP SEARCH INPUT BASED ON RADIO BUTTON
     $("#radioRating").click(function () {
         if($("#ratingSearchInput").hasClass("d-none")){
-            $("#ratingSearchInput, #searchField").toggleClass("d-none");
+            $("#ratingSearchInput").removeClass("d-none");
+            if(!$("#searchField").hasClass("d-none")){
+                $("#searchField").addClass("d-none");
+            }
+            if(!$("#genreSearchInput").hasClass("d-none")){
+                $("#genreSearchInput").addClass("d-none");
+            }
         }
-
     })
     // SWAP SEARCH INPUT BASED ON RADIO BUTTON
-    $("#radioTitle, #radioGenre").click(function () {
+    $("#radioTitle").click(function () {
         if($("#searchField").hasClass("d-none")){
-            $("#ratingSearchInput, #searchField").toggleClass("d-none");
+            $("#searchField").removeClass("d-none");
+            getDatabase();
+            if(!$("#ratingSearchInput").hasClass("d-none")){
+                $("#ratingSearchInput").addClass("d-none");
+            }
+            if(!$("#genreSearchInput").hasClass("d-none")){
+                $("#genreSearchInput").addClass("d-none");
+            }
         }
+    })
 
+    // SWAP SEARCH INPUT BASED ON RADIO BUTTON
+    $("#radioGenre").click(function () {
+        if($("#genreSearchInput").hasClass("d-none")){
+            $("#genreSearchInput").removeClass("d-none");
+            if(!$("#ratingSearchInput").hasClass("d-none")){
+                $("#ratingSearchInput").addClass("d-none");
+            }
+            if(!$("#searchField").hasClass("d-none")){
+                $("#searchField").addClass("d-none");
+            };
+        }
     })
     /** END SEARCH FEATURE **/
+
 
     /** SORT FILTER **/
 
@@ -573,7 +615,4 @@ $(document).ready(function() {
     $('#yearDown').click(yearDesc);
 
     getDatabase();
-
-
-
 })

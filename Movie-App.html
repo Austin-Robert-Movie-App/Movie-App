@@ -51,16 +51,20 @@
                     <div class="input-group-prepend">
                         <span id="searchBarPre" class="input-group-text shadow"></span>
                     </div>
-                    <input type="text" class="form-control"  id="searchField" name="searchField" placeholder="search database">
+                    <input type="text" class="form-control"  id="searchField" name="searchField" placeholder="Search Titles">
 
                     <!-- SELECT RATING SEARCH-->
-                    <select class="form-control d-none" id="ratingSearchInput">
+                    <select class="form-control d-none " id="ratingSearchInput">
+                        <option value="0" selected>Select Rating</option>
                         <option value="0">0+</option>
                         <option value="1">1+</option>
                         <option value="2">2+</option>
                         <option value="3">3+</option>
                         <option value="4">4+</option>
                         <option value="5">5</option>
+                    </select>
+                    <select class="form-control d-none" id="genreSearchInput">
+                        <option value="" selected>Select Genre</option>
                     </select>
                     <div class="input-group-append">
                         <button id="search" type="submit" class="input-group-text btn text-primary shadow">
