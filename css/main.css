@@ -4,7 +4,7 @@ body{
 .card{
     background-color: #0f181d!important;
     color: #fdfdfd;
-    border: black solid 1px;
+    border: black solid 1px!important;
 }
 .rating-stars{
     color: #00a8e1;
@@ -49,4 +49,12 @@ body{
     border-top: none;
     border-right: none;
     border-left: none;
+}
+
+iframe{
+    height: 25rem;
+    border-color: black;
+}
+.card-plots{
+    height: 8rem;
 }

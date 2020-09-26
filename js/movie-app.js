@@ -36,7 +36,7 @@ $(document).ready(function() {
             "the girl next door",
             "goodfellas",
             "rocky",
-            "fanasia",
+            "fantasia",
             "network",
             "apocalypse now"
         ];
@@ -70,14 +70,13 @@ $(document).ready(function() {
         "Video game",
         "Music"
     ];
-    for(let genre of genres) {
-        console.log(genre);
+    for (let genre of genres) {
         $("#genreSearchInput").append(`<option value="${genre}">${genre}</option>`);
     }
     $("#genreSearchInput").addClass("d-none");
     // MAKE REQUEST FROM OMDB API
-    const getOmdb =(movie) => {
-        const url =`http://www.omdbapi.com/?t=${movie}&apikey=${OMDbkey}&`
+    const getOmdb = (movie) => {
+        const url = `http://www.omdbapi.com/?t=${movie}&apikey=${OMDbkey}&`
         return fetch(url)
             .then(response => response.json())
             .then(movieData => {
@@ -87,13 +86,14 @@ $(document).ready(function() {
     }
 
     // SEED DATA WHEN NEEDED
-    const seedData = ()=>{
-        for(let movie of seedList){
-            getOmdb(movie).then((data)=>{
-                console.log("ombd",data)
+    const seedData = () => {
+        for (let movie of seedList) {
+            getOmdb(movie).then((data) => {
+                console.log("ombd", data)
                 let newMovie = {
+                    imdb: data.imdbID,
                     title: data.Title,
-                    year:  data.Year,
+                    year: data.Year,
                     rated: data.Rated,
                     released: data.Released,
                     runtime: parseInt(data.Runtime),
@@ -103,30 +103,36 @@ $(document).ready(function() {
                     poster: data.Poster,
                     rating: parseFloat(data.Ratings[0].Value.split("/")[0]),
                     director: data.Director,
-                    actors: data.Actors,
+                    actors: data.Actors
                 }
-                createMovie(newMovie);
+                getYifyData(newMovie.imdb).then( (ytlink) => {
+                    newMovie.trailer = ytlink;
+                    console.log(movie.trailer);
+                    createMovie(newMovie);
+                });
+                
+
             });
         }
     }
 
     // DELETES ALL THE MOVIES FROM OUR DATABASE
-    const deleteAll = () =>{
+    const deleteAll = () => {
         fetch(baseurl)
-            .then((response)=> {
+            .then((response) => {
                 if (response.ok) {
                     return response.json();
                 }
                 return Promise.reject(response);
             })
-            .then( (data)=> {
-                console.log("deleting data",data);
-                for (let movie of data){
+            .then((data) => {
+                console.log("deleting data", data);
+                for (let movie of data) {
                     deleteMovie(movie.id);
                 }
                 getDatabase();
             })
-            .catch( (error) =>{
+            .catch((error) => {
                 console.warn("error", error);
             });
     }
@@ -134,24 +140,24 @@ $(document).ready(function() {
 
     /** GET MOVIES FROM DATABASE REQUESTS**/
         // SERVER REQUEST TO GET ALL MOVIES FROM DATABASE
-    const getDatabase =() => {
+    const getDatabase = () => {
             $("#database-list").html(loader);
             fetch(baseurl)
-                .then((response)=> {
+                .then((response) => {
                     if (response.ok) {
                         return response.json();
                     }
                     return Promise.reject(response);
                 })
-                .then( (data)=> {
+                .then((data) => {
                     console.log("success");
                     localMovies = data;
                     $("#database-list").html("")
-                    for(let movie of localMovies){
+                    for (let movie of localMovies) {
                         createMovieCard(movie);
                     }
                 })
-                .catch( (error) =>{
+                .catch((error) => {
                     console.warn("error", error);
                 });
         }
@@ -159,22 +165,21 @@ $(document).ready(function() {
     // SERVER REQUEST TO GET SPECIFIC MOVIE FROM DATABASE
     const getMovie = (id) => {
         return fetch(baseurl)
-            .then((response)=> {
+            .then((response) => {
                 if (response.ok) {
                     return response.json();
                 }
                 return Promise.reject(response);
             })
-            .then( (data)=> {
+            .then((data) => {
                 for (let movie of data) {
                     if (movie.id == id) {
-                        console.log(movie);
                         return movie;
                     }
                 }
                 console.log("success");
             })
-            .catch( (error) =>{
+            .catch((error) => {
                 console.warn("error", error);
             });
     }
@@ -182,22 +187,40 @@ $(document).ready(function() {
 
     /** HELPER FUNCTIONS **/
         // DYNAMIC MOVIE CARD CREATED FROM MOVIE DATA
-    const createMovieCard = (movie) =>{
-            $('#database-list').append(`
+    const createMovieCard = (movie) => {
+        $('#database-list').append(`
             <div class="card menu-view shadow-lg ">
-                <img class="card-img-top" src="${movie.poster}" alt="Card image cap">
+                <img class="card-img-top" src="${movie.poster}" alt="Card image cap" style="height:27rem">
+                <iframe id="${movie.trailer}" 
+                class="card-img-top d-none"
+                src="" 
+                name="youtube embed" allow="autoplay; encrypted-media" 
+                allowfullscreen
+                frameborder="0"
+                ></iframe>
+
                 <div class="card-body">
-                    <h5 class="card-title">${movie.title}</h5>
-                    <p class="card-text card-plot">
-                        ${ movie.plot.length <= 136 ? movie.plot : movie.plot.slice(0,136)+"..." }
-                    </p>
-                    <p class="card-text card-plot-expanded d-none">
-                        ${ movie.plot }
-                    </p>
+                    <div id="${movie.id}" class="list-group-item d-flex justify-content-between px-0">
+                   
+                        <h5 class="card-title">${movie.title}</h5>
+                        <div class="hidden-list d-none float-right">
+                            <button class="badge badge-pill badge-info editbtn  mx-1">Edit</button>
+                            <button class="badge badge-pill badge-danger deletebtn  mx-1">Delete</button>
+                            <button class="btn bg-transparent" data-dismiss="modal" aria-label="Close">
+                            <i class="fas fa-chevron-down text-white"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-plots card-plot mb-2">
+                        <p class="my-2 card-text ">
+                            ${movie.plot.length <= 136 ? movie.plot : movie.plot.slice(0, 136) + "..."}
+                        </p>
+                    </div>
+                    <p class="my-2 card-text card-plot-expanded d-none">${movie.plot}</p>
                     <div class="sub-content">
                         <ul class="list-inline">
                             <li class="list-inline-item movie-ratings">
-                               <i class="fas fa-star"></i> <span class="rating-stars">${(movie.rating/2).toFixed(1)}</span> 
+                               <i class="fas fa-star"></i> <span class="rating-stars">${(movie.rating / 2).toFixed(1)}</span> 
                             </li>
                             <li class="list-inline-item sub-info"><i class="far fa-clock"></i> ${movie.runtime} min</li>
                             <li class="list-inline-item sub-info">${movie.year}</li>
@@ -213,10 +236,7 @@ $(document).ready(function() {
                             <div class="list-group-item"><h5>Actors:</h5><span class="sub-info"> ${movie.actors}</span></div>
                             <hr>
                             <div class="list-group-item"><h5>Language:</h5><span class="sub-info"> ${movie.language}</span></div>                
-                            <div id="${movie.id}" class="list-group-item">
-                                <button class="badge badge-pill badge-info editbtn float-right mx-1">Edit</button>
-                                <button class="badge badge-pill badge-danger deletebtn float-right mx-1">Delete</button>
-                            </div>
+                            
                         </div>
                     </div>   
                 </div> 
@@ -224,20 +244,21 @@ $(document).ready(function() {
         `);
         }
     // CREATES A MOVIE OBJECT BASED ON FORM INPUTS
-    const setMovieObj = ()=>{
+    const setMovieObj = () => {
         return {
             title: $("#title").val(),
-            year:  $("#year").val(),
+            year: $("#year").val(),
             rated: $("#rated").val(),
             released: $("#released").val(),
             runtime: $("#runtime").val(),
             genre: $("#genre").val(),
             plot: $("#plot").val(),
-            language:$("#language").val(),
+            language: $("#language").val(),
             poster: $("#poster").val(),
             rating: $("#rating").val(),
             director: $("#director").val(),
-            actors: $("#actors").val()
+            actors: $("#actors").val(),
+            trailer: $("#youTubeCode").val()
         }
     }
 
@@ -265,7 +286,7 @@ $(document).ready(function() {
 
     /** CRUD - CREATE, READ, UPDATE, DELETE **/
         // CRUD CREATE A MOVIE ON DATABASE
-    const createMovie = (movie)=>{
+    const createMovie = (movie) => {
             const options = {
                 method: 'POST',
                 headers: {
@@ -274,29 +295,29 @@ $(document).ready(function() {
                 body: JSON.stringify(movie),
             };
             fetch(baseurl, options)
-                .then((response)=> {
+                .then((response) => {
                     if (response.ok) {
                         return response.json();
                     }
                     return Promise.reject(response);
                 })
-                .then( ()=> {
+                .then(() => {
                     console.log("success");
                     getDatabase();
                 })
-                .catch( (error) =>{
+                .catch((error) => {
                     console.warn("error", error);
                 });
         }
 
     // CRUD DELETE MOVIE FROM DATABASE
-    const deleteMovie = (id)=>{
+    const deleteMovie = (id) => {
         let url = `${baseurl}/${id}`;
-        fetch(url,{method: "DELETE"}).then(()=> getDatabase());
+        fetch(url, {method: "DELETE"}).then(() => getDatabase());
     }
 
     // CRUD UPDATE MOVIE ON DATABASE
-    const updateMovie =(id) => {
+    const updateMovie = (id) => {
         const url = `${baseurl}/${id}`;
         const movie = setMovieObj()
         const options = {
@@ -307,18 +328,18 @@ $(document).ready(function() {
             body: JSON.stringify(movie),
         };
         fetch(url, options)
-            .then((response)=> {
+            .then((response) => {
                 if (response.ok) {
                     return response.json();
                 }
                 return Promise.reject(response);
             })
-            .then( (data)=> {
+            .then((data) => {
                 console.log("success");
                 $("#formModal").modal("toggle");
                 getDatabase();
             })
-            .catch( (error) =>{
+            .catch((error) => {
                 console.warn("error", error);
             });
     }
@@ -327,36 +348,36 @@ $(document).ready(function() {
 
     /** FORM SPECIFIC VARS AND FUNCTIONS **/
         // FORM: RENDER THE MOVIE FORM FROM CALLBACK
-    const loadCreateForm = ()=>{
+    const loadCreateForm = () => {
             return fetch("_form.html")
-                .then((response)=> {
+                .then((response) => {
                     if (response.ok) {
                         return response.text();
                     }
                     return Promise.reject(response);
                 })
-                .catch( (error) =>{
+                .catch((error) => {
                     console.warn("error", error);
                 });
         }
 
     // FORM: CREATES THE SELECT VALUES FOR YEARS
-    const yearsSelect = ()=>{
+    const yearsSelect = () => {
         let current = (new Date()).getFullYear();
-        for (current; current>= 1900; current-- ){
+        for (current; current >= 1900; current--) {
             $("#year").append(`<option value="${current}">${current}</option>`)
         }
     }
 
     // FORM: CREATES THE SELECT VALUES FOR GENRE
-    const genreSelect = ()=>{
-        for(let genre of genres) {
+    const genreSelect = () => {
+        for (let genre of genres) {
             $("#genre").append(`<option value="${genre}">${genre}</option>`);
         }
     }
 
     // FORM: CREATES THE SELECT VALUES FOR LANGUAGES
-    const languageSelect = ()=>{
+    const languageSelect = () => {
         const langs = [
             "English",
             "Spanish",
@@ -368,18 +389,18 @@ $(document).ready(function() {
             "Bengali",
             "Indonesian"
         ]
-        for(let lang of langs){
+        for (let lang of langs) {
             $("#language").append(`<option value="${lang}">${lang}</option>`)
         }
     }
     // FORM: SHOW CURRENT VALUE OF RATING SLIDER
-    $(document).on("change","#rating",function () {
+    $(document).on("change", "#rating", function () {
         $("#currentRating").html($("#rating").val());
     })
 
     // FORM: SET THE INPUT SELECT VALUES FOR THE FORM
-    const setSelectValues = ()=>{
-        loadCreateForm().then( html=>{
+    const setSelectValues = () => {
+        loadCreateForm().then(html => {
             $("#modalForm").html(html);
             yearsSelect();
             genreSelect();
@@ -387,8 +408,8 @@ $(document).ready(function() {
         })
     }
     // FORM: UPDATES THE EDIT FORM VALUES TO THOSE OF THE CURRENT MOVIE
-    const updateFormValues =(movie) => {
-        $('input[name="currId"]').attr('value',movie.id);
+    const updateFormValues = (movie) => {
+        $('input[name="currId"]').attr('value', movie.id);
         $("#title").val(movie.title);
         $("#year").val(movie.year);
         $("#rated").val(movie.rated);
@@ -401,28 +422,25 @@ $(document).ready(function() {
         $("#rating").val(movie.rating);
         $("#director").val(movie.director);
         $("#actors").val(movie.actors);
+        $("#youTubeCode").val(movie.trailer);
     }
     /** END FORM **/
 
 
     /** ONCLICK EVENTS **/
     // NEW MOVIE BUTTON ON CLICK DISPLAY THE CREATE MOVIE FORM MODAL
-    $("#addMovieBtn").click(function (){
+    $("#addMovieBtn").click(function () {
         setSelectValues();
         $('#formModalLongTitle').html("Add Movie");
         $("#formModal").modal("toggle");
     })
 
-    // GET ENTIRE CARD ON CLICK;
-    // const deleteTitle = $(this).parent().siblings();
-
     // DELETE MOVIE BUTTON ON CLICK DISPLAY CONFIRM DELETE
-    $(document).on('click','.deletebtn',function(){
+    $(document).on('click', '.deletebtn', function () {
         $("#expandedModal").modal("toggle");
-        const id = $(this).parent()[0].id;
-        console.log(id)
-        const deleteTitle = $(this).parent().siblings(".card-body").children(".card-title");
-        $("#deleteMovieModalLabel").html( deleteTitle);
+        const id = $(this).parent().parent()[0].id;
+        const deleteTitle = $(this).parent().parent().siblings(".card-body").children(".card-title");
+        $("#deleteMovieModalLabel").html(deleteTitle);
         $("#deleteMovieModal").modal("toggle");
         // IF USER CLICKS CONFIRM DELETE, DELETE MOVIE
         $(".confirm-delete").click(function () {
@@ -432,19 +450,18 @@ $(document).ready(function() {
     });
 
     // EDIT MOVIE BUTTON ON CLICK DISPLAY THE UPDATE MOVIE FORM
-    $(document).on('click','.editbtn',function() {
+    $(document).on('click', '.editbtn', function () {
         $("#expandedModal").modal("toggle");
-        const id = $(this).parent()[0].id;
-        console.log(id)
+        const id = $(this).parent().parent()[0].id;
         setSelectValues();
         getMovie(id).then(movie => {
             updateFormValues(movie);
-            $('#createMovie').attr("id","updateMovie");
+            $('#createMovie').attr("id", "updateMovie");
             $('#formModalLongTitle').html("Update Movie");
         });
-        setTimeout(()=>{
+        setTimeout(() => {
             $("#formModal").modal("toggle");
-        },200);
+        }, 200);
     });
 
     //EXPANDS MODAL INFORMATION
@@ -452,10 +469,17 @@ $(document).ready(function() {
         let info = $(this).html();
         let expandedContent = $('#expandedContent');
         expandedContent.html(info);
+        expandedContent.children("iframe").attr("src",`https://www.youtube.com/embed/${expandedContent.children("iframe")[0].id}?rel=0&modestbranding=1&autohide=1&showinfo=0&autoplay=1&mute=1`)
+        expandedContent.children(".card-img-top").toggleClass("d-none");
+        expandedContent.children(".card-body").children().first().children(".hidden-list").toggleClass("d-none");
         expandedContent.children(".card-body").children(".sub-content").children(".hidden-list").toggleClass("d-none");
         expandedContent.children(".card-body").children(".card-plot").toggleClass("d-none");
         expandedContent.children(".card-body").children(".card-plot-expanded").toggleClass("d-none");
         $('#expandedModal').modal("toggle");
+    })
+
+    $('#expandedModal').on('hidden.bs.modal', function () {
+        $('#expandedContent').empty();
     })
 
     /** END ONCLICK **/
@@ -463,7 +487,7 @@ $(document).ready(function() {
 
     /** ONSUBMIT EVENTS **/
     // CREATE MOVIE FORM ON SUBMIT
-    $(document).on("submit","#createMovie",function (event){
+    $(document).on("submit", "#createMovie", function (event) {
         event.preventDefault();
         const movie = setMovieObj();
         createMovie(movie);
@@ -471,85 +495,85 @@ $(document).ready(function() {
     });
 
     // EDIT MOVIE FORM ON SUBMIT
-    $(document).on("submit","#updateMovie",function (event){
+    $(document).on("submit", "#updateMovie", function (event) {
         event.preventDefault();
         const id = $('input[name="currId"]').val();
         updateMovie(id);
     });
     // SEARCH FORM ON SUBMIT
-    $("#searchForm").on("submit",function (event) {
+    $("#searchForm").on("submit", function (event) {
         event.preventDefault();
         movieSearch($("#searchField").val())
     })
     // SEARCH FORM SUBMITS ON KEYUP
-    $("#searchField").on("keyup",function () {
+    $("#searchField").on("keyup", function () {
         movieSearch($("#searchField").val());
     })
-    $("#ratingSearchInput").on("change",function () {
+    $("#ratingSearchInput").on("change", function () {
         movieSearch($("#ratingSearchInput").val());
     })
-    $("#genreSearchInput").on("change",function () {
+    $("#genreSearchInput").on("change", function () {
         movieSearch($("#genreSearchInput").val());
     })
     /** END ONSUBMIT **/
 
     /** SEARCH FEATURE SECTION **/
         // SEARCH DATABASE
-    const movieSearch = (searchInput)=>{
+    const movieSearch = (searchInput) => {
             $("#database-list").html(loader);
-            let movies = localMovies.filter((movie)=> {
-                if ( $("#radioTitle").is(":checked")) {
+            let movies = localMovies.filter((movie) => {
+                if ($("#radioTitle").is(":checked")) {
                     if (movie.title.toLowerCase().includes(searchInput.toLowerCase())) {
                         return movie;
                     }
                 }
-                if ( $("#radioGenre").is(":checked")){
+                if ($("#radioGenre").is(":checked")) {
                     searchInput = $("#genreSearchInput").val();
-                    for (let g of movie.genre){
+                    for (let g of movie.genre) {
                         if (g.toLowerCase().includes(searchInput.toLowerCase())) {
                             return movie;
                         }
                     }
                 }
-                if ($("#radioRating").is(":checked")){
+                if ($("#radioRating").is(":checked")) {
                     searchInput = $("#ratingSearchInput").val();
-                    if((movie.rating/2) >= parseFloat(searchInput) ){
+                    if ((movie.rating / 2) >= parseFloat(searchInput)) {
                         return movie;
                     }
                 }
             })
             $("#database-list").html("")
-            if(movies.length>0){
-                for(let movie of movies){
+            if (movies.length > 0) {
+                for (let movie of movies) {
                     createMovieCard(movie);
                 }
-            }else{
+            } else {
                 $("#database-list").html("<h2 class='text-white'>No Movies Match Your Criteria</h2>")
             }
-            
+
         }
 
     // SWAP SEARCH INPUT BASED ON RADIO BUTTON
     $("#radioRating").click(function () {
-        if($("#ratingSearchInput").hasClass("d-none")){
+        if ($("#ratingSearchInput").hasClass("d-none")) {
             $("#ratingSearchInput").removeClass("d-none");
-            if(!$("#searchField").hasClass("d-none")){
+            if (!$("#searchField").hasClass("d-none")) {
                 $("#searchField").addClass("d-none");
             }
-            if(!$("#genreSearchInput").hasClass("d-none")){
+            if (!$("#genreSearchInput").hasClass("d-none")) {
                 $("#genreSearchInput").addClass("d-none");
             }
         }
     })
     // SWAP SEARCH INPUT BASED ON RADIO BUTTON
     $("#radioTitle").click(function () {
-        if($("#searchField").hasClass("d-none")){
+        if ($("#searchField").hasClass("d-none")) {
             $("#searchField").removeClass("d-none");
             getDatabase();
-            if(!$("#ratingSearchInput").hasClass("d-none")){
+            if (!$("#ratingSearchInput").hasClass("d-none")) {
                 $("#ratingSearchInput").addClass("d-none");
             }
-            if(!$("#genreSearchInput").hasClass("d-none")){
+            if (!$("#genreSearchInput").hasClass("d-none")) {
                 $("#genreSearchInput").addClass("d-none");
             }
         }
@@ -557,14 +581,15 @@ $(document).ready(function() {
 
     // SWAP SEARCH INPUT BASED ON RADIO BUTTON
     $("#radioGenre").click(function () {
-        if($("#genreSearchInput").hasClass("d-none")){
+        if ($("#genreSearchInput").hasClass("d-none")) {
             $("#genreSearchInput").removeClass("d-none");
-            if(!$("#ratingSearchInput").hasClass("d-none")){
+            if (!$("#ratingSearchInput").hasClass("d-none")) {
                 $("#ratingSearchInput").addClass("d-none");
             }
-            if(!$("#searchField").hasClass("d-none")){
+            if (!$("#searchField").hasClass("d-none")) {
                 $("#searchField").addClass("d-none");
-            };
+            }
+            ;
         }
     })
     /** END SEARCH FEATURE **/
@@ -573,20 +598,20 @@ $(document).ready(function() {
     /** SORT FILTER **/
 
         // TITLE A-Z
-    const titleAsc = ()=>{
-            localMovies.sort((a,b) => (a.title > b.title) ? 1 : -1);
+    const titleAsc = () => {
+            localMovies.sort((a, b) => (a.title > b.title) ? 1 : -1);
             $("#database-list").empty();
-            for(let movie of localMovies){
+            for (let movie of localMovies) {
                 createMovieCard(movie);
             }
         }
 
     $('#titleAZ').click(titleAsc);
 
-    const titleDesc = () =>{
-        localMovies.sort((a,b) => (a.title < b.title) ? 1 : -1);
+    const titleDesc = () => {
+        localMovies.sort((a, b) => (a.title < b.title) ? 1 : -1);
         $("#database-list").empty();
-        for(let movie of localMovies){
+        for (let movie of localMovies) {
             createMovieCard(movie);
         }
     }
@@ -594,20 +619,20 @@ $(document).ready(function() {
     $('#titleZA').click(titleDesc);
 
     // YEAR ASC
-    const yearAsc = ()=>{
-        localMovies.sort((a,b) => (a.year > b.year) ? 1 : -1);
+    const yearAsc = () => {
+        localMovies.sort((a, b) => (a.year > b.year) ? 1 : -1);
         $("#database-list").empty();
-        for(let movie of localMovies){
+        for (let movie of localMovies) {
             createMovieCard(movie);
         }
     }
 
     $('#yearUp').click(yearAsc);
 
-    const yearDesc = ()=>{
-        localMovies.sort((a,b) => (a.year < b.year) ? 1 : -1);
+    const yearDesc = () => {
+        localMovies.sort((a, b) => (a.year < b.year) ? 1 : -1);
         $("#database-list").empty();
-        for(let movie of localMovies){
+        for (let movie of localMovies) {
             createMovieCard(movie);
         }
     }
@@ -615,4 +640,36 @@ $(document).ready(function() {
     $('#yearDown').click(yearDesc);
 
     getDatabase();
+
+    /** Add Trailer Library **/
+
+    const corsProxy = "https://cors-anywhere.herokuapp.com/";
+    const getYifyData = (imdb) => {
+        let yify = `https://yts.mx/api/v2/list_movies.json?query_term=${imdb}`;
+        let url = corsProxy + yify;
+        return fetch(url)
+            .then((response) => {
+                if (response.ok) {
+                    return response.json();
+                }
+                return Promise.reject(response);
+            })
+            .then(library => {
+                return library.data.movies[0].yt_trailer_code;
+            })
+            .catch((error) => {
+                console.warn("error", error);
+            });
+
+    }
+    const getTrailers = () => {
+        for (let movie of localMovies) {
+            getYifyData(movie.imdb).then(ytlink => {
+                movie.trailer = ytlink;
+
+            })
+        }
+    }
+
+
 })
