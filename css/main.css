@@ -58,3 +58,12 @@ iframe{
 .card-plots{
     height: 8rem;
 }
+
+.grow {
+    transition: all .2s ease-in-out;
+}
+.grow:hover {
+    transform: scale(1.1);
+    z-index: 1000;
+    cursor: pointer;
+}

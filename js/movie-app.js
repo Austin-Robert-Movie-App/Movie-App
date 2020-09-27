@@ -1,45 +1,72 @@
-$(document).ready(function() {
+// $(document).ready(function() {
 
     const baseurl = 'https://copper-cypress-bakery.glitch.me/movies';
     let localMovies = [];
     /** DATABASE SEED-EMPTY FUNCTIONS **/
         // SEED DATA TO GET FROM OMDB FOR DATABASE
     const seedList = [
-            "CITIZEN KANE ",
-            "CASABLANCA",
-            "THE GODFATHER",
-            "GONE WITH THE WIND",
-            "WIZARD OF OZ",
-            "THE GRADUATE",
-            "PSYCHO",
-            "nightmare on elm street",
-            "Friday the 13th",
-            "kill bill",
-            "king kong",
-            "taxi driver",
-            "the conjuring",
-            "due date",
-            "the hangover",
-            "jaws",
-            "clockwork orange",
-            "hot tub time machine",
-            "back to the future",
-            "the sandlot",
-            "pulp fiction",
-            "forrest gump",
-            "american pie",
-            "fight club",
-            "donnie darko",
-            "mr. deeds",
-            "hot chick",
-            "ip man",
-            "the girl next door",
-            "goodfellas",
-            "rocky",
-            "fantasia",
-            "network",
-            "apocalypse now"
-        ];
+        "American Psycho ",
+        "Battle Royale",
+        "Final Destination",
+        "Crouching Tiger, Hidden Dragon",
+        "Frequency",
+        "Ginger Snaps",
+        "Gladiator",
+        "Road Trip",
+        "X-Men",
+        "The Cell",
+        "Vanilla Sky",
+        "Minority Report",
+        "Crazy Rich Asians",
+        "Girls Trip",
+        "Trading Places",
+        "Galaxy Quest",
+        "Bridesmaids",
+        "Happy Gilmore",
+        "Step Brothers",
+        "High Fidelity",
+        "Napoleon Dynamite",
+        "Three Amigos",
+        "Blazing Saddles",
+        "The Big Lebowski",
+        "Gremlins",
+        "The Naked Gun",
+        "Airplane!",
+        "This Is Spinal Tap",
+        "Groundhog Day",
+        "Get Out",
+        "The Shining",
+        "Saw",
+        "The Witch",
+        "The Babadook",
+        "Carrie",
+        "The Descent",
+        "Hellraiser",
+        "Scream",
+        "The Goonies",
+        "THE GREATEST SHOWMAN",
+        "Moana",
+        "DADDY DAY CARE",
+        "Stand by Me",
+        "Toy Story",
+        "The Karate Kid",
+        "Aladdin",
+        "The Hunger Games",
+        "Finding Nemo",
+        "Home Alone",
+        "Frozen",
+        "The Terminator",
+        "Apocalypse Now",
+        "The Matrix",
+        "Gladiator",
+        "Die Hard",
+        "Avengers Endgame",
+        "Skyfall",
+        "Iron Man",
+        "300",
+        "Speed",
+        "Independence Day"
+    ];
 
     const genres = [
         "Action",
@@ -189,7 +216,7 @@ $(document).ready(function() {
         // DYNAMIC MOVIE CARD CREATED FROM MOVIE DATA
     const createMovieCard = (movie) => {
         $('#database-list').append(`
-            <div class="card menu-view shadow-lg ">
+            <div class="card menu-view shadow-lg grow">
                 <img class="card-img-top" src="${movie.poster}" alt="Card image cap" style="height:27rem">
                 <iframe id="${movie.trailer}" 
                 class="card-img-top d-none"
@@ -439,7 +466,7 @@ $(document).ready(function() {
     $(document).on('click', '.deletebtn', function () {
         $("#expandedModal").modal("toggle");
         const id = $(this).parent().parent()[0].id;
-        const deleteTitle = $(this).parent().parent().siblings(".card-body").children(".card-title");
+        const deleteTitle = $(this).parent().parent().children(".card-title").text();
         $("#deleteMovieModalLabel").html(deleteTitle);
         $("#deleteMovieModal").modal("toggle");
         // IF USER CLICKS CONFIRM DELETE, DELETE MOVIE
@@ -453,11 +480,13 @@ $(document).ready(function() {
     $(document).on('click', '.editbtn', function () {
         $("#expandedModal").modal("toggle");
         const id = $(this).parent().parent()[0].id;
+        const updateTitle = $(this).parent().parent().children(".card-title").text();
+
         setSelectValues();
         getMovie(id).then(movie => {
             updateFormValues(movie);
             $('#createMovie').attr("id", "updateMovie");
-            $('#formModalLongTitle').html("Update Movie");
+            $('#formModalLongTitle').html(`Edit ${updateTitle}`);
         });
         setTimeout(() => {
             $("#formModal").modal("toggle");
@@ -672,4 +701,4 @@ $(document).ready(function() {
     }
 
 
-})
+// })
