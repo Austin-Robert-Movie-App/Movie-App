@@ -1,5 +1,4 @@
-// $(document).ready(function() {
-
+$(document).ready(function() {
     const baseurl = 'https://copper-cypress-bakery.glitch.me/movies';
     let localMovies = [];
     /** DATABASE SEED-EMPTY FUNCTIONS **/
@@ -97,10 +96,12 @@
         "Video game",
         "Music"
     ];
+    genres.sort();
     for (let genre of genres) {
         $("#genreSearchInput").append(`<option value="${genre}">${genre}</option>`);
     }
     $("#genreSearchInput").addClass("d-none");
+
     // MAKE REQUEST FROM OMDB API
     const getOmdb = (movie) => {
         const url = `http://www.omdbapi.com/?t=${movie}&apikey=${OMDbkey}&`
@@ -134,7 +135,6 @@
                 }
                 getYifyData(newMovie.imdb).then( (ytlink) => {
                     newMovie.trailer = ytlink;
-                    console.log(movie.trailer);
                     createMovie(newMovie);
                 });
                 
@@ -691,14 +691,12 @@
             });
 
     }
+    // TEST IF GETTING TRAILERS -- MIGHT NOT NEED
     const getTrailers = () => {
         for (let movie of localMovies) {
             getYifyData(movie.imdb).then(ytlink => {
                 movie.trailer = ytlink;
-
             })
         }
     }
-
-
-// })
+})
