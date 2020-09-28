@@ -566,7 +566,7 @@ $(document).ready(function() {
                 }
                 if ($("#radioRating").is(":checked")) {
                     searchInput = $("#ratingSearchInput").val();
-                    if ((movie.rating / 2) >= parseFloat(searchInput)) {
+                    if ((movie.rating / 2) >= parseInt(searchInput) && (movie.rating / 2) < (parseInt(searchInput) + 1)) {
                         return movie;
                     }
                 }
